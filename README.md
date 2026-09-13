@@ -2,6 +2,8 @@
 
 本地运行的随机密码生成网站，零依赖、单文件、可直接部署到 Cloudflare Pages。
 
+**在线地址**：https://randompw.pages.dev/
+
 ## 功能
 
 - 四类字符开关：小写 / 大写 / 数字 / 符号
