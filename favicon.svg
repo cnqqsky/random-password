@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="随机密码生成器">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+    <mask id="lock">
+      <rect width="512" height="512" fill="#000"/>
+      <path d="M350.7 202.2A94.7 94.7 0 0 0 161.3 202.2L217.1 202.2A38.9 38.9 0 0 1 294.9 202.2Z" fill="#fff"/>
+      <rect x="128" y="192" width="256" height="194.6" rx="38.4" fill="#fff"/>
+      <circle cx="256" cy="273.7" r="29.7" fill="#000"/>
+      <path d="M237.6 278.2h36.8l16.6 70H221z" fill="#000"/>
+    </mask>
+  </defs>
+  <rect width="512" height="512" rx="113" fill="url(#g)"/>
+  <rect width="512" height="512" rx="113" fill="#fff" mask="url(#lock)"/>
+</svg>
