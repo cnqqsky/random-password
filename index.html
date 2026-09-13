@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="description" content="本地安全随机密码生成器：支持长度/数量/字符类型自定义，真随机数，不上传服务器。" />
+<title>随机密码生成器</title>
+<style>
+  :root{
+    --bg1:#eef2ff; --bg2:#f8fafc; --bg3:#fce7f3;
+    --card:rgba(255,255,255,.86); --card-brd:rgba(255,255,255,.7);
+    --text:#0f172a; --muted:#64748b; --soft:#94a3b8;
+    --primary:#4f46e5; --primary2:#7c3aed; --primary-soft:#eef2ff;
+    --line:#e2e8f0; --track:#e5e7eb;
+    --ok:#10b981; --warn:#f59e0b; --bad:#ef4444; --great:#6366f1;
+    --shadow:0 10px 30px -10px rgba(79,70,229,.25), 0 4px 12px -4px rgba(15,23,42,.08);
+    --radius:18px;
+  }
+  html[data-theme="dark"]{
+    --bg1:#0b1020; --bg2:#0e1326; --bg3:#1a1030;
+    --card:rgba(23,27,46,.82); --card-brd:rgba(255,255,255,.08);
+    --text:#e8ecf5; --muted:#9aa6c2; --soft:#6b7794;
+    --primary:#818cf8; --primary2:#a78bfa; --primary-soft:#1e2440;
+    --line:#2a3050; --track:#1c2238;
+    --shadow:0 16px 40px -12px rgba(0,0,0,.6);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    color:var(--text);
+    min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 12% -8%, var(--bg3), transparent 60%),
+      radial-gradient(1100px 700px at 100% 0%, var(--bg1), transparent 55%),
+      linear-gradient(180deg, var(--bg2), var(--bg2));
+    background-attachment:fixed;
+    display:flex; flex-direction:column; align-items:center;
+    padding:28px 16px 56px; gap:22px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{width:100%; max-width:680px}
+  header{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
+  .head-txt h1{font-size:26px; font-weight:800; letter-spacing:-.4px; display:flex; align-items:center; gap:10px}
+  .head-txt h1 .dot{width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:0 0 0 4px var(--primary-soft)}
+  .head-txt p{margin-top:6px; color:var(--muted); font-size:14px}
+  .theme-btn{
+    flex:none; width:42px;height:42px;border-radius:12px;border:1px solid var(--line);
+    background:var(--card); color:var(--text); cursor:pointer; font-size:18px;
+    display:grid;place-items:center; transition:.2s; backdrop-filter:blur(8px);
+  }
+  .theme-btn:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
+
+  .card{
+    background:var(--card); border:1px solid var(--card-brd); border-radius:var(--radius);
+    box-shadow:var(--shadow); backdrop-filter:blur(14px); padding:20px;
+  }
+  .card + .card{margin-top:18px}
+
+  .section-title{font-size:13px; font-weight:700; color:var(--soft); text-transform:uppercase; letter-spacing:.6px; margin-bottom:12px}
+
+  /* charset toggles */
+  .sets{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  @media(max-width:480px){.sets{grid-template-columns:1fr}}
+  .set{
+    display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px;
+    border:1px solid var(--line); background:var(--bg2); cursor:pointer; transition:.18s; user-select:none;
+  }
+  .set:hover{border-color:var(--primary)}
+  .set.on{background:var(--primary-soft); border-color:var(--primary)}
+  .set .chk{
+    width:22px;height:22px;border-radius:7px;border:2px solid var(--soft); flex:none;
+    display:grid;place-items:center; transition:.18s; color:#fff; font-size:14px; font-weight:800;
+  }
+  .set.on .chk{background:linear-gradient(135deg,var(--primary),var(--primary2)); border-color:transparent}
+  .set .meta{flex:1; min-width:0}
+  .set .name{font-size:14px; font-weight:600; line-height:1.2}
+  .set .sample{font-size:12px; color:var(--muted); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+
+  .exclude{margin-top:14px}
+  .field-label{font-size:13px; color:var(--muted); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center}
+  .exclude-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .exclude-name{font-size:13.5px; color:var(--muted); flex:none}
+  .exclude-row input[type=checkbox]{width:20px; height:20px; flex:none; margin:0; accent-color:var(--primary); cursor:pointer}
+  .exclude-row input[type=text]{
+    flex:1; min-width:150px; padding:11px 13px; border-radius:12px; border:1px solid var(--line);
+    background:var(--bg2); color:var(--text); font-size:14px; font-family:ui-monospace,monospace; transition:.18s;
+  }
+  .exclude-row input[type=text]:focus{outline:none; border-color:var(--primary)}
+  .exclude-row input[type=text]:disabled{opacity:.5; cursor:not-allowed}
+
+  .pool-hint{margin-top:10px; font-size:12.5px; color:var(--muted)}
+  .pool-hint b{color:var(--primary)}
+
+  /* slider rows */
+  .ctrl{margin-top:16px}
+  .ctrl .top{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px}
+  .ctrl .top .lab{font-size:14px; font-weight:600}
+  .ctrl .top .val{font-size:15px; font-weight:800; color:var(--primary)}
+  .ctrl input[type=range]{
+    -webkit-appearance:none; appearance:none; width:100%; height:8px; border-radius:999px;
+    background:var(--track); outline:none;
+  }
+  .ctrl input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:22px;height:22px;border-radius:50%; cursor:pointer;
+    background:linear-gradient(135deg,var(--primary),var(--primary2)); border:3px solid #fff;
+    box-shadow:0 2px 8px rgba(79,70,229,.45);
+  }
+  .ctrl input[type=range]::-moz-range-thumb{
+    width:20px;height:20px;border-radius:50%; cursor:pointer; border:3px solid #fff;
+    background:var(--primary); box-shadow:0 2px 8px rgba(79,70,229,.45);
+  }
+
+  .gen-btn{
+    margin-top:20px; width:100%; padding:15px; border:none; border-radius:14px; cursor:pointer;
+    font-size:16px; font-weight:800; color:#fff; letter-spacing:.5px;
+    background:linear-gradient(135deg,var(--primary),var(--primary2));
+    box-shadow:0 12px 26px -10px rgba(79,70,229,.6); transition:.18s;
+  }
+  .gen-btn:hover{transform:translateY(-1px); filter:brightness(1.05)}
+  .gen-btn:active{transform:translateY(0)}
+
+  /* results */
+  .result-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px}
+  .result-head .t{font-size:15px; font-weight:700}
+  .result-actions{display:flex; gap:8px}
+  .mini-btn{
+    border:1px solid var(--line); background:var(--bg2); color:var(--text); cursor:pointer;
+    padding:7px 11px; border-radius:10px; font-size:12.5px; font-weight:600; transition:.15s;
+  }
+  .mini-btn:hover{border-color:var(--primary); color:var(--primary)}
+
+  .strength{display:flex; align-items:center; gap:10px; margin-bottom:14px}
+  .strength .bars{flex:1; display:flex; gap:5px}
+  .strength .bars span{height:7px; flex:1; border-radius:999px; background:var(--track); transition:.25s}
+  .strength .label{font-size:13px; font-weight:800; min-width:54px; text-align:right}
+  .strength .entropy{font-size:11.5px; color:var(--muted); min-width:64px; text-align:right}
+
+  .pw-list{display:flex; flex-direction:column; gap:9px}
+  .pw-item{
+    display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:12px;
+    border:1px solid var(--line); background:var(--bg2); transition:.15s;
+  }
+  .pw-item:hover{border-color:var(--primary)}
+  .pw-item .pw{
+    flex:1; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:15px; font-weight:600;
+    word-break:break-all; letter-spacing:.3px; line-height:1.4;
+  }
+  .pw-item .copy{
+    flex:none; width:34px;height:34px;border-radius:9px;border:1px solid var(--line);
+    background:var(--card); color:var(--text); cursor:pointer; font-size:15px; display:grid; place-items:center; transition:.15s;
+  }
+  .pw-item .copy:hover{background:var(--primary); color:#fff; border-color:transparent}
+  .empty{color:var(--soft); font-size:13.5px; text-align:center; padding:22px 0}
+
+  /* history */
+  .hist-list{display:flex; flex-direction:column; gap:7px; max-height:230px; overflow:auto}
+  .hist-item{display:flex; align-items:center; gap:10px; font-size:13px; padding:8px 11px; border-radius:10px; background:var(--bg2); border:1px solid var(--line)}
+  .hist-item .h-pw{flex:1; font-family:ui-monospace,monospace; word-break:break-all; color:var(--muted)}
+  .hist-item .h-copy{cursor:pointer; color:var(--primary); font-weight:700; flex:none}
+  .hist-clear{margin-top:10px; font-size:12.5px; color:var(--soft); cursor:pointer; background:none; border:none}
+  .hist-clear:hover{color:var(--bad)}
+
+  .note{font-size:12px; color:var(--soft); line-height:1.7; margin-top:4px}
+  .note b{color:var(--muted)}
+
+  /* toast */
+  .toast{
+    position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(20px);
+    background:var(--text); color:var(--bg2); padding:11px 18px; border-radius:12px;
+    font-size:13.5px; font-weight:700; box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:.25s; z-index:50;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+
+  footer{font-size:12px; color:var(--soft); text-align:center; line-height:1.7}
+  footer code{font-family:ui-monospace,monospace; background:var(--card); padding:1px 6px; border-radius:6px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="head-txt">
+        <h1><span class="dot"></span>随机密码生成器</h1>
+        <p>本地安全生成符合你需求的强密码 · 不上传、不记录</p>
+      </div>
+      <button class="theme-btn" id="themeBtn" title="切换明暗主题">🌙</button>
+    </header>
+
+    <!-- 配置卡片 -->
+    <div class="card" style="margin-top:18px">
+      <div class="section-title">所用字符</div>
+      <div class="sets" id="sets">
+        <div class="set on" data-key="lower"><div class="chk">✓</div><div class="meta"><div class="name">小写字母</div><div class="sample">a-z</div></div></div>
+        <div class="set on" data-key="upper"><div class="chk">✓</div><div class="meta"><div class="name">大写字母</div><div class="sample">A-Z</div></div></div>
+        <div class="set on" data-key="number"><div class="chk">✓</div><div class="meta"><div class="name">数字</div><div class="sample">0-9</div></div></div>
+        <div class="set on" data-key="symbol"><div class="chk">✓</div><div class="meta"><div class="name">符号</div><div class="sample">!@#$%^&*</div></div></div>
+      </div>
+
+      <div class="exclude">
+        <div class="exclude-row">
+          <span class="exclude-name">排除字符</span>
+          <input id="excludeEnable" type="checkbox" checked />
+          <input id="excludeInput" type="text" value="iIl1o0O" placeholder="输入要排除的字符" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="pool-hint" id="poolHint">可用字符数：<b>—</b> 个</div>
+
+      <div class="ctrl">
+        <div class="top"><span class="lab">密码长度</span><span class="val"><span id="lenVal">17</span> 位</span></div>
+        <input id="lenRange" type="range" min="4" max="64" value="17" />
+      </div>
+
+      <div class="ctrl">
+        <div class="top"><span class="lab">密码数量</span><span class="val"><span id="numVal">1</span> 个</span></div>
+        <input id="numRange" type="range" min="1" max="50" value="1" />
+      </div>
+
+      <button class="gen-btn" id="genBtn">⚡ 生成密码</button>
+    </div>
+
+    <!-- 结果卡片 -->
+    <div class="card">
+      <div class="result-head">
+        <div class="t">生成结果</div>
+        <div class="result-actions">
+          <button class="mini-btn" id="copyAllBtn">复制全部</button>
+          <button class="mini-btn" id="downloadBtn">下载 .txt</button>
+        </div>
+      </div>
+      <div class="strength" id="strengthBox" style="display:none">
+        <div class="bars"><span></span><span></span><span></span><span></span></div>
+        <div class="label" id="strengthLabel"></div>
+        <div class="entropy" id="entropyVal"></div>
+      </div>
+      <div class="pw-list" id="pwList">
+        <div class="empty">点击「生成密码」开始 · 所有计算都在你的浏览器本地完成</div>
+      </div>
+    </div>
+
+    <!-- 历史卡片 -->
+    <div class="card">
+      <div class="result-head">
+        <div class="t">最近生成（本页会话）</div>
+        <button class="mini-btn" id="clearHistBtn">清空</button>
+      </div>
+      <div class="hist-list" id="histList"><div class="empty">暂无记录</div></div>
+    </div>
+
+    <footer>
+      <div class="note">
+        <b>安全说明：</b>使用浏览器 <code>crypto.getRandomValues</code> 真随机数（密码学安全），
+        全部在本地运行，不会上传到任何服务器。请妥善保管生成的密码。
+      </div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  var SETS = {
+    lower:  "abcdefghijklmnopqrstuvwxyz",
+    upper:  "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    number: "0123456789",
+    symbol: "!@#$%^&*()-_=+[]{};:,.<>?/~"
+  };
+  var state = { lower:true, upper:true, number:true, symbol:true };
+
+  var $ = function(id){ return document.getElementById(id); };
+  var setsEl = $("sets"), excludeInput = $("excludeInput"),
+      poolHint = $("poolHint"), lenRange = $("lenRange"), lenVal = $("lenVal"),
+      numRange = $("numRange"), numVal = $("numVal"), excludeEnable = $("excludeEnable"),
+      genBtn = $("genBtn"), pwList = $("pwList"), strengthBox = $("strengthBox"),
+      strengthLabel = $("strengthLabel"), entropyVal = $("entropyVal"),
+      copyAllBtn = $("copyAllBtn"), downloadBtn = $("downloadBtn"),
+      histList = $("histList"), clearHistBtn = $("clearHistBtn"),
+      themeBtn = $("themeBtn"), toast = $("toast");
+
+  var history = [];
+
+  // 构建字符池（含排除 + 易混过滤）
+  function buildPool(){
+    var pool = "";
+    for(var k in SETS){ if(state[k]) pool += SETS[k]; }
+    var remove = excludeEnable.checked ? excludeInput.value : "";
+    if(remove){
+      var re = new RegExp("[" + escapeReg(remove) + "]", "g");
+      pool = pool.replace(re, "");
+    }
+    // 去重
+    var seen = {}, out = "";
+    for(var i=0;i<pool.length;i++){ var c=pool[i]; if(!seen[c]){ seen[c]=1; out+=c; } }
+    return out;
+  }
+  function escapeReg(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
+  function updatePoolHint(){
+    var n = buildPool().length;
+    poolHint.innerHTML = "可用字符数：<b>" + n + "</b> 个" + (n===0 ? "（请至少选择一类字符并移除排除项）" : "");
+  }
+
+  // 密码学安全随机整数 [0, max)
+  function randInt(max){
+    if(max <= 0) return 0;
+    var limit = Math.floor(0x100000000 / max) * max; // 拒绝采样上界
+    var buf = new Uint32Array(1);
+    var x;
+    do { crypto.getRandomValues(buf); x = buf[0]; } while(x >= limit);
+    return x % max;
+  }
+
+  function genOne(len, pool){
+    if(pool.length === 0) return "";
+    var s = "";
+    for(var i=0;i<len;i++){ s += pool[randInt(pool.length)]; }
+    return s;
+  }
+
+  // 熵与强度
+  function strengthOf(poolSize, len){
+    if(poolSize<=0||len<=0) return {bits:0, level:0, text:"—", color:"var(--soft)"};
+    var bits = len * Math.log2(poolSize);
+    var level, text, color;
+    if(bits < 28){ level=1; text="弱"; color="var(--bad)"; }
+    else if(bits < 45){ level=2; text="中"; color="var(--warn)"; }
+    else if(bits < 64){ level=3; text="强"; color="var(--ok)"; }
+    else { level=4; text="极强"; color="var(--great)"; }
+    return {bits:bits, level:level, text:text, color:color};
+  }
+
+  // 防截断复制
+  function copyText(text){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function(res, rej){
+      try{
+        var ta=document.createElement("textarea"); ta.value=text;
+        ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta);
+        ta.select(); document.execCommand("copy"); document.body.removeChild(ta); res();
+      }catch(e){ rej(e); }
+    });
+  }
+  function showToast(msg){
+    toast.textContent = msg; toast.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function(){ toast.classList.remove("show"); }, 1600);
+  }
+
+  function renderStrength(poolSize, len){
+    var s = strengthOf(poolSize, len);
+    strengthBox.style.display = poolSize>0 ? "flex" : "none";
+    var bars = strengthBox.querySelectorAll(".bars span");
+    for(var i=0;i<bars.length;i++){
+      bars[i].style.background = i < s.level ? s.color : "var(--track)";
+    }
+    strengthLabel.textContent = s.text; strengthLabel.style.color = s.color;
+    entropyVal.textContent = s.bits>0 ? Math.round(s.bits)+" bit" : "";
+    return s;
+  }
+
+  function renderPw(list){
+    if(list.length===0){
+      pwList.innerHTML = '<div class="empty">没有可用的字符，请调整选项</div>';
+      return;
+    }
+    pwList.innerHTML = "";
+    list.forEach(function(pw){
+      var item = document.createElement("div"); item.className="pw-item";
+      var code = document.createElement("div"); code.className="pw"; code.textContent=pw;
+      var btn = document.createElement("button"); btn.className="copy"; btn.textContent="📋"; btn.title="复制";
+      btn.onclick = function(){ copyText(pw).then(function(){ showToast("已复制"); }).catch(function(){ showToast("复制失败"); }); };
+      item.appendChild(code); item.appendChild(btn); pwList.appendChild(item);
+    });
+  }
+
+  function renderHistory(){
+    if(history.length===0){ histList.innerHTML='<div class="empty">暂无记录</div>'; return; }
+    histList.innerHTML="";
+    history.slice(0,30).forEach(function(pw){
+      var it=document.createElement("div"); it.className="hist-item";
+      var c=document.createElement("div"); c.className="h-pw"; c.textContent=pw;
+      var b=document.createElement("span"); b.className="h-copy"; b.textContent="复制";
+      b.onclick=function(){ copyText(pw).then(function(){ showToast("已复制"); }).catch(function(){ showToast("复制失败"); }); };
+      it.appendChild(c); it.appendChild(b); histList.appendChild(it);
+    });
+  }
+
+  function generate(){
+    var pool = buildPool();
+    var len = parseInt(lenRange.value,10);
+    var num = parseInt(numRange.value,10);
+    if(pool.length===0){ showToast("字符池为空，请调整选项"); renderPw([]); strengthBox.style.display="none"; return; }
+    var list = [];
+    for(var i=0;i<num;i++){ list.push(genOne(len, pool)); }
+    renderPw(list);
+    renderStrength(pool.length, len);
+    // 记录历史（只记第一条/全部加入？这里加入本次生成的全部）
+    for(var j=0;j<list.length;j++){ history.unshift(list[j]); }
+    if(history.length>200) history = history.slice(0,200);
+    renderHistory();
+  }
+
+  // 事件绑定
+  setsEl.addEventListener("click", function(e){
+    var el = e.target.closest(".set"); if(!el) return;
+    var k = el.getAttribute("data-key");
+    state[k] = !state[k];
+    el.classList.toggle("on", state[k]);
+    el.querySelector(".chk").textContent = state[k] ? "✓" : "";
+    updatePoolHint();
+  });
+  excludeInput.addEventListener("input", updatePoolHint);
+  excludeEnable.addEventListener("change", function(){
+    excludeInput.disabled = !excludeEnable.checked;
+    updatePoolHint();
+  });
+  lenRange.addEventListener("input", function(){ lenVal.textContent = lenRange.value; });
+  numRange.addEventListener("input", function(){ numVal.textContent = numRange.value; });
+  genBtn.addEventListener("click", generate);
+  copyAllBtn.addEventListener("click", function(){
+    var items = pwList.querySelectorAll(".pw");
+    if(!items.length){ showToast("暂无可复制内容"); return; }
+    var txt = Array.prototype.map.call(items, function(n){ return n.textContent; }).join("\n");
+    copyText(txt).then(function(){ showToast("已复制全部 "+items.length+" 条"); }).catch(function(){ showToast("复制失败"); });
+  });
+  downloadBtn.addEventListener("click", function(){
+    var items = pwList.querySelectorAll(".pw");
+    if(!items.length){ showToast("暂无可下载内容"); return; }
+    var txt = Array.prototype.map.call(items, function(n){ return n.textContent; }).join("\r\n");
+    var blob = new Blob([txt], {type:"text/plain;charset=utf-8"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "passwords-"+new Date().toISOString().slice(0,10)+".txt";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    showToast("已下载");
+  });
+  clearHistBtn.addEventListener("click", function(){ history=[]; renderHistory(); showToast("历史已清空"); });
+
+  // 主题
+  function applyTheme(t){
+    document.documentElement.setAttribute("data-theme", t);
+    themeBtn.textContent = t==="dark" ? "☀️" : "🌙";
+    try{ localStorage.setItem("pw_theme", t); }catch(e){}
+  }
+  themeBtn.addEventListener("click", function(){
+    var cur = document.documentElement.getAttribute("data-theme")==="dark" ? "light":"dark";
+    applyTheme(cur);
+  });
+  (function initTheme(){
+    var saved; try{ saved=localStorage.getItem("pw_theme"); }catch(e){}
+    var pref = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark":"light");
+    applyTheme(pref);
+  })();
+
+  excludeInput.disabled = !excludeEnable.checked;
+  updatePoolHint();
+})();
+</script>
+</body>
+</html>
