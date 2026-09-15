@@ -203,7 +203,7 @@
       <div class="exclude">
         <div class="exclude-row">
           <span class="exclude-name">排除字符</span>
-          <input id="excludeEnable" type="checkbox" checked />
+          <input id="excludeEnable" type="checkbox" />
           <input id="excludeInput" type="text" value="iIl1o0O" placeholder="输入要排除的字符" autocomplete="off" />
         </div>
       </div>
@@ -472,7 +472,9 @@
     }
   })();
 
-  excludeInput.disabled = !excludeEnable.checked;
+  // 排除字符默认关闭（输入框仍预填 iIl1o0O，勾选即生效）
+  excludeEnable.checked = false;
+  excludeInput.disabled = true;
   updatePoolHint();
 })();
 </script>
