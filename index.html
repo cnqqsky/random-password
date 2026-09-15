@@ -194,10 +194,10 @@
     <div class="card" style="margin-top:18px">
       <div class="section-title">所用字符</div>
       <div class="sets" id="sets">
-        <div class="set on" data-key="lower"><div class="chk">✓</div><div class="meta"><div class="name">小写字母</div><div class="sample">a-z</div></div></div>
-        <div class="set on" data-key="upper"><div class="chk">✓</div><div class="meta"><div class="name">大写字母</div><div class="sample">A-Z</div></div></div>
-        <div class="set on" data-key="number"><div class="chk">✓</div><div class="meta"><div class="name">数字</div><div class="sample">0-9</div></div></div>
-        <div class="set on" data-key="symbol"><div class="chk">✓</div><div class="meta"><div class="name">符号</div><div class="sample">!@#$%^&*</div></div></div>
+        <div class="set" data-key="lower"><div class="chk"></div><div class="meta"><div class="name">小写字母</div><div class="sample">a-z</div></div></div>
+        <div class="set" data-key="upper"><div class="chk"></div><div class="meta"><div class="name">大写字母</div><div class="sample">A-Z</div></div></div>
+        <div class="set" data-key="number"><div class="chk"></div><div class="meta"><div class="name">数字</div><div class="sample">0-9</div></div></div>
+        <div class="set" data-key="symbol"><div class="chk"></div><div class="meta"><div class="name">符号</div><div class="sample">!@#$%^&*</div></div></div>
       </div>
 
       <div class="exclude">
@@ -270,7 +270,8 @@
     number: "0123456789",
     symbol: "!@#$%^&*()-_=+[]{};:,.<>?/~"
   };
-  var state = { lower:true, upper:true, number:true, symbol:true };
+  // 默认只勾选「数字」，其余三类关闭（改这里即可调整默认状态）
+  var state = { lower:false, upper:false, number:true, symbol:false };
 
   var $ = function(id){ return document.getElementById(id); };
   var setsEl = $("sets"), excludeInput = $("excludeInput"),
@@ -458,6 +459,17 @@
     var saved; try{ saved=localStorage.getItem("pw_theme"); }catch(e){}
     var pref = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark":"light");
     applyTheme(pref);
+  })();
+
+  // 依据 state 初始化字符类型 UI（保持单一数据源）
+  (function initSets(){
+    var nodes = setsEl.querySelectorAll(".set");
+    for(var i=0;i<nodes.length;i++){
+      var el = nodes[i], k = el.getAttribute("data-key");
+      var on = !!state[k];
+      el.classList.toggle("on", on);
+      el.querySelector(".chk").textContent = on ? "✓" : "";
+    }
   })();
 
   excludeInput.disabled = !excludeEnable.checked;
