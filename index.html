@@ -50,8 +50,10 @@
     --ok:#10b981; --warn:#f59e0b; --bad:#ef4444; --great:#6366f1;
     --shadow:0 10px 30px -10px rgba(79,70,229,.25), 0 4px 12px -4px rgba(15,23,42,.08);
     --radius:18px;
+    color-scheme:light;
   }
   html[data-theme="dark"]{
+    color-scheme:dark;
     --bg1:#0b1020; --bg2:#0e1326; --bg3:#1a1030;
     --card:rgba(23,27,46,.82); --card-brd:rgba(255,255,255,.08);
     --text:#e8ecf5; --muted:#9aa6c2; --soft:#6b7794;
@@ -115,7 +117,24 @@
   .field-label{font-size:13px; color:var(--muted); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center}
   .exclude-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
   .exclude-name{font-size:13.5px; color:var(--muted); flex:none}
-  .exclude-row input[type=checkbox]{width:20px; height:20px; flex:none; margin:0; accent-color:var(--primary); cursor:pointer}
+  /* 自绘复选框：与原生的 color-scheme 深色渲染解耦，配色与 .set .chk 完全一致 */
+  .exclude-row input[type=checkbox]{
+    -webkit-appearance:none; appearance:none;
+    width:22px; height:22px; flex:none; margin:0; cursor:pointer;
+    border:2px solid var(--soft); border-radius:7px; background:transparent;
+    background-repeat:no-repeat; background-position:center; background-size:14px 14px;
+    transition:.18s;
+  }
+  .exclude-row input[type=checkbox]:hover{border-color:var(--primary)}
+  .exclude-row input[type=checkbox]:checked{
+    border-color:transparent;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5.5 5.5L20 6.5'/%3E%3C/svg%3E"),linear-gradient(135deg,var(--primary),var(--primary2));
+    background-size:14px 14px,auto;
+    background-position:center,center;
+    background-repeat:no-repeat,no-repeat;
+  }
+  .exclude-row input[type=checkbox]:focus-visible{outline:2px solid var(--primary); outline-offset:2px}
+  .exclude-row input[type=checkbox]:disabled{opacity:.5; cursor:not-allowed}
   .exclude-row input[type=text]{
     flex:1; min-width:150px; padding:11px 13px; border-radius:12px; border:1px solid var(--line);
     background:var(--bg2); color:var(--text); font-size:14px; font-family:ui-monospace,monospace; transition:.18s;
