@@ -3,12 +3,42 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="description" content="本地安全随机密码生成器：支持长度/数量/字符类型自定义，真随机数，不上传服务器。" />
-<title>随机密码生成器</title>
+<title>随机密码生成器 - 在线强密码生成工具 | 本地真随机不上传</title>
+<meta name="description" content="免费在线随机密码生成器：可自定义密码长度（4-64 位）、数量（1-50 个）与字符类型（大小写字母、数字、符号），支持排除易混淆字符，实时显示密码强度与熵值。采用 crypto.getRandomValues 密码学安全随机数，全程在浏览器本地计算，不上传、不记录。" />
+<meta name="keywords" content="随机密码生成器,密码生成器,强密码生成,在线密码生成,安全密码,随机密码,密码强度检测,password generator,强密码在线生成工具" />
+<meta name="author" content="随机密码生成器" />
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+<meta name="application-name" content="随机密码生成器" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="color-scheme" content="light dark" />
+<link rel="canonical" href="https://randompw.pages.dev/" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="随机密码生成器" />
+<meta property="og:locale" content="zh_CN" />
+<meta property="og:title" content="随机密码生成器 - 在线强密码生成工具" />
+<meta property="og:description" content="自定义长度 / 数量 / 字符类型，crypto 密码学安全随机数，浏览器本地生成不上传服务器，实时显示密码强度与熵值。" />
+<meta property="og:url" content="https://randompw.pages.dev/" />
+<meta property="og:image" content="https://randompw.pages.dev/og-image.png" />
+<meta property="og:image:secure_url" content="https://randompw.pages.dev/og-image.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="随机密码生成器 · 本地真随机不上传服务器" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="随机密码生成器 - 在线强密码生成工具" />
+<meta name="twitter:description" content="自定义长度 / 数量 / 字符类型，crypto 密码学安全随机数，浏览器本地生成不上传服务器。" />
+<meta name="twitter:image" content="https://randompw.pages.dev/og-image.png" />
+<meta name="twitter:image:alt" content="随机密码生成器 · 本地真随机不上传服务器" />
+
 <link rel="icon" type="image/x-icon" href="favicon.ico" />
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 <meta name="theme-color" content="#4F46E5" />
+<meta name="theme-color" content="#0b1020" media="(prefers-color-scheme: dark)" />
 <link rel="manifest" href="manifest.webmanifest" />
 <style>
   :root{
@@ -168,6 +198,18 @@
   .note{font-size:12px; color:var(--soft); line-height:1.7; margin-top:4px}
   .note b{color:var(--muted)}
 
+  /* FAQ */
+  .faq{display:flex; flex-direction:column; gap:8px}
+  .faq details{border:1px solid var(--line); border-radius:12px; background:var(--bg2); padding:11px 14px; transition:.18s}
+  .faq details[open]{background:var(--primary-soft); border-color:var(--primary)}
+  .faq summary{cursor:pointer; font-size:14px; font-weight:700; color:var(--text); list-style:none}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::before{content:"＋"; color:var(--primary); font-weight:800; margin-right:8px}
+  .faq details[open] summary::before{content:"－"}
+  .faq p{margin-top:8px; font-size:13.5px; line-height:1.75; color:var(--muted)}
+  .faq code{font-family:ui-monospace,monospace; background:var(--card); padding:1px 6px; border-radius:6px}
+  .noscript-tip{font-size:13.5px; line-height:1.8; color:var(--muted)}
+
   /* toast */
   .toast{
     position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(20px);
@@ -181,7 +223,7 @@
 </style>
 </head>
 <body>
-  <div class="wrap">
+  <main class="wrap">
     <header>
       <div class="head-txt">
         <h1><span class="dot"></span>随机密码生成器</h1>
@@ -191,8 +233,8 @@
     </header>
 
     <!-- 配置卡片 -->
-    <div class="card" style="margin-top:18px">
-      <div class="section-title">所用字符</div>
+    <section class="card" style="margin-top:18px" aria-labelledby="sec-charset">
+      <h2 class="section-title" id="sec-charset">所用字符</h2>
       <div class="sets" id="sets">
         <div class="set" data-key="lower"><div class="chk"></div><div class="meta"><div class="name">小写字母</div><div class="sample">a-z</div></div></div>
         <div class="set" data-key="upper"><div class="chk"></div><div class="meta"><div class="name">大写字母</div><div class="sample">A-Z</div></div></div>
@@ -221,12 +263,12 @@
       </div>
 
       <button class="gen-btn" id="genBtn">⚡ 生成密码</button>
-    </div>
+    </section>
 
     <!-- 结果卡片 -->
-    <div class="card">
+    <section class="card" aria-labelledby="sec-result">
       <div class="result-head">
-        <div class="t">生成结果</div>
+        <h2 class="t" id="sec-result">生成结果</h2>
         <div class="result-actions">
           <button class="mini-btn" id="copyAllBtn">复制全部</button>
           <button class="mini-btn" id="downloadBtn">下载 .txt</button>
@@ -240,16 +282,53 @@
       <div class="pw-list" id="pwList">
         <div class="empty">点击「生成密码」开始 · 所有计算都在你的浏览器本地完成</div>
       </div>
-    </div>
+    </section>
 
     <!-- 历史卡片 -->
-    <div class="card">
+    <section class="card" aria-labelledby="sec-history">
       <div class="result-head">
-        <div class="t">最近生成（本页会话）</div>
+        <h2 class="t" id="sec-history">最近生成（本页会话）</h2>
         <button class="mini-btn" id="clearHistBtn">清空</button>
       </div>
       <div class="hist-list" id="histList"><div class="empty">暂无记录</div></div>
-    </div>
+    </section>
+
+    <!-- FAQ：静态可索引内容 -->
+    <section class="card" aria-labelledby="sec-faq">
+      <h2 class="section-title" id="sec-faq">使用说明与常见问题</h2>
+      <div class="faq">
+        <details open>
+          <summary>这个随机密码生成器安全吗？密码会被上传到服务器吗？</summary>
+          <p>不会。本站没有后端，所有密码由浏览器内置的 <code>crypto.getRandomValues</code>（密码学安全随机数，CSPRNG）在你的设备本地生成，密码不会上传、不会被记录，关闭页面即消失。</p>
+        </details>
+        <details>
+          <summary>怎样生成一个足够强的密码？</summary>
+          <p>建议长度 ≥ 16 位，并同时勾选小写字母、大写字母、数字与符号。本站会实时计算熵值（bit）：低于 28 bit 为「弱」，45 bit 以上为「强」，64 bit 以上为「极强」。</p>
+        </details>
+        <details>
+          <summary>熵值（bit）是什么意思？</summary>
+          <p>熵 = 密码长度 × log₂（可用字符数），代表密码的不确定性。熵每增加 1 bit，暴力破解需要的尝试量就翻倍；一般认为 64 bit 以上对离线爆破已具备较高安全性。</p>
+        </details>
+        <details>
+          <summary>为什么要排除易混淆字符？</summary>
+          <p>0/O、1/l/I、o/0 这类字符在手抄或口述时极易出错。勾选「排除字符」后，输入框内的字符（默认 <code>iIl1o0O</code>）不会出现在生成的密码中。</p>
+        </details>
+        <details>
+          <summary>可以一次生成多个密码并导出吗？</summary>
+          <p>可以。拖动「密码数量」滑块可一次生成 1–50 个随机密码，生成后可一键「复制全部」或「下载 .txt」保存。</p>
+        </details>
+        <details>
+          <summary>手机上能用吗？</summary>
+          <p>可以。页面为响应式设计，手机浏览器体验完整，也支持「添加到主屏幕」以类 App 方式打开（PWA）。</p>
+        </details>
+      </div>
+    </section>
+
+    <noscript>
+      <div class="card noscript-tip">
+        <b>需要启用 JavaScript：</b>本站的随机密码生成依赖浏览器本地脚本运行。启用后即可自定义密码长度（4–64 位）、数量（1–50 个）与字符类型（小写字母、大写字母、数字、符号），并实时查看密码强度与熵值。
+      </div>
+    </noscript>
 
     <footer>
       <div class="note">
@@ -257,7 +336,7 @@
         全部在本地运行，不会上传到任何服务器。
       </div>
     </footer>
-  </div>
+  </main>
 
   <div class="toast" id="toast"></div>
 
@@ -477,6 +556,128 @@
   excludeInput.disabled = true;
   updatePoolHint();
 })();
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://randompw.pages.dev/#website",
+      "url": "https://randompw.pages.dev/",
+      "name": "随机密码生成器",
+      "description": "在线随机密码生成器，浏览器本地生成强密码，不上传服务器。",
+      "inLanguage": "zh-CN"
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://randompw.pages.dev/#webpage",
+      "url": "https://randompw.pages.dev/",
+      "name": "随机密码生成器 - 在线强密码生成工具",
+      "description": "自定义长度、数量与字符类型，实时显示密码强度与熵值的在线随机密码生成器。",
+      "inLanguage": "zh-CN",
+      "isPartOf": { "@id": "https://randompw.pages.dev/#website" },
+      "primaryImageOfPage": {
+        "@type": "ImageObject",
+        "url": "https://randompw.pages.dev/og-image.png",
+        "width": 1200,
+        "height": 630
+      }
+    },
+    {
+      "@type": "WebApplication",
+      "@id": "https://randompw.pages.dev/#app",
+      "name": "随机密码生成器",
+      "alternateName": "Random Password Generator",
+      "url": "https://randompw.pages.dev/",
+      "description": "免费在线随机密码生成器：可自定义密码长度（4-64 位）、数量（1-50 个）与字符类型（小写字母、大写字母、数字、符号），支持排除易混淆字符，实时显示密码强度与熵值（bit）。采用 crypto.getRandomValues 密码学安全随机数，全程浏览器本地计算，不上传、不记录。",
+      "applicationCategory": "UtilitiesApplication",
+      "applicationSubCategory": "密码与安全工具",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "inLanguage": "zh-CN",
+      "isAccessibleForFree": true,
+      "image": "https://randompw.pages.dev/og-image.png",
+      "screenshot": "https://randompw.pages.dev/og-image.png",
+      "featureList": [
+        "密码长度 4-64 位可调",
+        "一次批量生成 1-50 个密码",
+        "小写字母 / 大写字母 / 数字 / 符号自由组合",
+        "排除指定字符与易混淆字符（默认 iIl1o0O）",
+        "基于熵值（bit）的密码强度实时评估",
+        "一键复制与 .txt 文件导出",
+        "明暗主题切换与响应式布局",
+        "支持添加到主屏幕（PWA）"
+      ],
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "CNY",
+        "availability": "https://schema.org/InStock"
+      },
+      "provider": {
+        "@type": "Organization",
+        "name": "随机密码生成器",
+        "url": "https://randompw.pages.dev/"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://randompw.pages.dev/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "这个随机密码生成器安全吗？密码会被上传到服务器吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "不会。本站没有后端，所有密码由浏览器内置的 crypto.getRandomValues（密码学安全随机数，CSPRNG）在你的设备本地生成，密码不会上传、不会被记录，关闭页面即消失。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "怎样生成一个足够强的密码？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "建议长度 ≥ 16 位，并同时勾选小写字母、大写字母、数字与符号。本站会实时计算熵值（bit）：低于 28 bit 为「弱」，45 bit 以上为「强」，64 bit 以上为「极强」。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "熵值（bit）是什么意思？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "熵 = 密码长度 × log₂（可用字符数），代表密码的不确定性。熵每增加 1 bit，暴力破解需要的尝试量就翻倍；一般认为 64 bit 以上对离线爆破已具备较高安全性。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "为什么要排除易混淆字符？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "0/O、1/l/I、o/0 这类字符在手抄或口述时极易出错。勾选「排除字符」后，输入框内的字符（默认 iIl1o0O）不会出现在生成的密码中。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "可以一次生成多个密码并导出吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "可以。拖动「密码数量」滑块可一次生成 1–50 个随机密码，生成后可一键「复制全部」或「下载 .txt」保存。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "手机上能用吗？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "可以。页面为响应式设计，手机浏览器体验完整，也支持「添加到主屏幕」以类 App 方式打开（PWA）。"
+          }
+        }
+      ]
+    }
+  ]
+}
 </script>
 </body>
 </html>
