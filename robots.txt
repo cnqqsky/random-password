@@ -1,0 +1,8 @@
+# robots.txt — https://randompw.pages.dev/
+# 允许所有搜索引擎抓取本站全部公开内容
+
+User-agent: *
+Allow: /
+
+# 站点地图
+Sitemap: https://randompw.pages.dev/sitemap.xml
