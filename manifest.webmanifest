@@ -1,9 +1,15 @@
 {
-  "name": "随机密码生成器",
+  "id": "./",
+  "name": "随机密码生成器 - 在线强密码生成工具",
   "short_name": "密码生成器",
-  "description": "本地安全生成符合你需求的强密码，不上传、不记录。",
+  "description": "在线随机密码生成器：自定义密码长度（4-64 位）、数量（1-50 个）与字符类型，实时显示密码强度与熵值，浏览器本地生成不上传服务器。",
+  "lang": "zh-CN",
+  "dir": "ltr",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
+  "categories": ["utilities", "security", "productivity"],
   "background_color": "#F8FAFC",
   "theme_color": "#4F46E5",
   "icons": [
