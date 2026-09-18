@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://randompw.pages.dev/</loc>
+    <lastmod>2026-09-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://randompw.pages.dev/og-image.png</image:loc>
+      <image:title>随机密码生成器 - 在线强密码生成工具</image:title>
+      <image:caption>本地真随机 · 不上传服务器 · 长度/数量/字符类型自由组合</image:caption>
+    </image:image>
+  </url>
+</urlset>
